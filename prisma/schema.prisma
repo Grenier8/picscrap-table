@@ -14,20 +14,77 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  name     String?
-  email    String  @unique
-  password String
-  posts    Post[]
-}
-
-model Post {
   id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  name      String
+  lastname  String
+  password  String
+  roleId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id])
+  role      Role     @relation("UserRole", fields: [roleId], references: [id])
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]   @relation("UserRole")
+}
+
+model Product {
+  id            Int          @id @default(autoincrement())
+  name          String
+  sku           String
+  brandId       Int
+  description   String?
+  price         Float
+  outOfStock    Boolean?
+  link          String?
+  image         String?
+  webpageId     Int
+  baseProductId Int?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  brand         Brand        @relation("ProductBrand", fields: [brandId], references: [id])
+  webpage       Webpage      @relation("ProductWebpage", fields: [webpageId], references: [id])
+  baseProduct   BaseProduct? @relation("BaseProduct", fields: [baseProductId], references: [id])
+}
+
+model BaseProduct {
+  id          Int       @id @default(autoincrement())
+  name        String
+  sku         String
+  brand       String
+  description String?
+  price       Float
+  outOfStock  Boolean?
+  link        String?
+  image       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     Product[] @relation("BaseProduct")
+}
+
+model Brand {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[] @relation("ProductBrand")
+}
+
+model Webpage {
+  id          Int       @id @default(autoincrement())
+  name        String
+  url         String    @unique
+  description String?
+  isBasePage  Boolean
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[] @relation("ProductWebpage")
 }

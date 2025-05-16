@@ -27,6 +27,9 @@ export const authOptions = {
               name: credentials.name ?? credentials.email,
               email: credentials.email,
               password: await bcrypt.hash(credentials.password, 10),
+              username: credentials.name ?? credentials.email,
+              lastname: "",
+              roleId: 1,
             },
           });
         }

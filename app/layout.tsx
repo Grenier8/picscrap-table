@@ -1,5 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
+import Script from "next/script";
 import Header from "./Header";
 import Providers from "./providers";
 
@@ -15,6 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script src="http://localhost:8097" strategy="afterInteractive" />
+      </head>
       <body>
         <Providers>
           <div className="min-h-screen flex flex-col">
