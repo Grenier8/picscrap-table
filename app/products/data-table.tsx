@@ -45,7 +45,9 @@ export function DataTable<TData, TValue>({
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      outOfStock: false,
+    });
 
   const table = useReactTable({
     data,
@@ -65,7 +67,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="mr-4 ml-4">
+    <div className="mr-4 ml-4 bg-white dark:bg-gray-900 w-full">
       <div className="flex items-center py-4 gap-5">
         <Input
           placeholder="Filtrar nombre..."
@@ -73,7 +75,7 @@ export function DataTable<TData, TValue>({
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <Input
           placeholder="Filtrar marca..."
@@ -81,11 +83,14 @@ export function DataTable<TData, TValue>({
           onChange={(event) =>
             table.getColumn("brand")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button
+              variant="outline"
+              className="ml-auto dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+            >
               Columns
             </Button>
           </DropdownMenuTrigger>

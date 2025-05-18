@@ -8,20 +8,18 @@ export default function NewUser() {
   async function createUser(formData: FormData) {
     "use server";
 
-    const name = formData.get("name") as string;
+    const fullname = formData.get("fullname") as string;
     const email = formData.get("email") as string;
     const username = formData.get("username") as string;
-    const lastname = formData.get("lastname") as string;
 
     await prisma.user.create({
       data: {
-        name,
+        fullname,
         email,
         password: "",
         username,
-        lastname,
-        role: { connect: { name: "USER" } },
-      }, // password will be added by NextAuth
+        roleId: 1,
+      },
     });
 
     redirect("/");

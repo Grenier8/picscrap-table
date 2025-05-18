@@ -17,8 +17,7 @@ model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
   email     String   @unique
-  name      String
-  lastname  String
+  fullname  String
   password  String
   roleId    Int
   createdAt DateTime @default(now())
@@ -52,13 +51,15 @@ model Product {
   brand         Brand        @relation("ProductBrand", fields: [brandId], references: [id])
   webpage       Webpage      @relation("ProductWebpage", fields: [webpageId], references: [id])
   baseProduct   BaseProduct? @relation("BaseProduct", fields: [baseProductId], references: [id])
+
+  @@unique([sku, webpageId])
 }
 
 model BaseProduct {
   id          Int       @id @default(autoincrement())
   name        String
-  sku         String
-  brand       String
+  sku         String    @unique
+  brandId     Int
   description String?
   price       Float
   outOfStock  Boolean?
@@ -66,16 +67,18 @@ model BaseProduct {
   image       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  product     Product[] @relation("BaseProduct")
+  brand       Brand     @relation("BaseProductBrand", fields: [brandId], references: [id])
+  products    Product[] @relation("BaseProduct")
 }
 
 model Brand {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  products    Product[] @relation("ProductBrand")
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  products     Product[]     @relation("ProductBrand")
+  baseProducts BaseProduct[] @relation("BaseProductBrand")
 }
 
 model Webpage {

@@ -1,5 +1,3 @@
-"use client";
-
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
@@ -13,18 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { Page, ListProduct } from "@/lib/interfaces";
+import { BaseProduct, Webpage } from "@/lib/interfaces";
 
-const pages: Page[] = [
-  {
-    name: "picslab",
-    id: "picslab",
-    url: "https://picslabstore.cl",
-    dbPort: 3000,
-  },
-];
-
-export const columns: ColumnDef<ListProduct>[] = [
+export const columns: ColumnDef<BaseProduct>[] = [
   {
     accessorKey: "image",
     header: "Imagen",
@@ -72,6 +61,10 @@ export const columns: ColumnDef<ListProduct>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const brand = row.original.brand;
+      return <div>{brand.name}</div>;
+    },
   },
   {
     accessorKey: "sku",
@@ -100,7 +93,7 @@ export const columns: ColumnDef<ListProduct>[] = [
       return <div className="text-right font-medium">{formatted}</div>;
     },
   },
-  ...getPagesColumns(pages),
+  ...(await getPagesColumns()),
   {
     id: "actions",
     cell: ({ row }) => {
@@ -131,10 +124,14 @@ export const columns: ColumnDef<ListProduct>[] = [
   },
 ];
 
-function getPagesColumns(pages: Page[]): ColumnDef<ListProduct>[] {
-  return pages.map((page) => {
+async function getPagesColumns(): Promise<ColumnDef<BaseProduct>[]> {
+  const webpages: Webpage[] = await fetch("/api/webpages")
+    .then((res) => res.json())
+    .then((data) => data.webpages);
+
+  return webpages.map((page: Webpage) => {
     return {
-      accessorKey: `price_${page.id}`,
+      accessorKey: page.name,
       header: ({ column }) => {
         return (
           <Button
@@ -147,13 +144,38 @@ function getPagesColumns(pages: Page[]): ColumnDef<ListProduct>[] {
         );
       },
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue(`price_${page.id}`));
-        const formatted = new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "CLP",
-        }).format(amount);
+        const products = row.original.products;
+        const product = products.find((p) => p.webpageId === page.id);
+        const amount = product ? product.price : -1;
+        const formatted =
+          amount === -1
+            ? "-"
+            : new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "CLP",
+              }).format(amount);
 
-        return <div className="text-right font-medium">{formatted}</div>;
+        const basePrice = row.original.price;
+        const colorClass =
+          amount == -1 || amount === basePrice
+            ? ""
+            : amount < basePrice
+            ? "text-red-500"
+            : "text-green-500";
+
+        const diffIndicator =
+          amount === -1 || amount === basePrice
+            ? ""
+            : amount < basePrice
+            ? " ↓"
+            : " ↑";
+
+        return (
+          <div className={`text-right font-medium ${colorClass}`}>
+            {formatted}
+            {diffIndicator}
+          </div>
+        );
       },
     };
   });

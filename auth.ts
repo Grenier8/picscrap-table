@@ -8,30 +8,36 @@ export const authOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        name: { label: "Name", type: "name" },
+        username: { label: "Username", type: "username" },
+        name: { label: "name", type: "name" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
+        if (!credentials?.username || !credentials?.password) {
+          return null;
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { username: credentials.username },
         });
+        console.log(user);
 
         if (!user) {
-          return await prisma.user.create({
+          const newUser = await prisma.user.create({
             data: {
-              name: credentials.name ?? credentials.email,
-              email: credentials.email,
+              fullname: credentials.name,
+              email: "",
               password: await bcrypt.hash(credentials.password, 10),
-              username: credentials.name ?? credentials.email,
-              lastname: "",
+              username: credentials.username,
               roleId: 1,
             },
           });
+          return {
+            id: String(newUser.id),
+            fullname: newUser.fullname,
+            email: newUser.email,
+            username: newUser.username,
+          };
         }
 
         const isCorrectPassword = await bcrypt.compare(
@@ -40,10 +46,16 @@ export const authOptions = {
         );
 
         if (!isCorrectPassword) {
-          throw new Error("Invalid credentials");
+          return null;
         }
+        console.log("id: ", user.id, "fullname: ", user.fullname);
 
-        return user;
+        return {
+          id: String(user.id),
+          name: user.fullname,
+          email: user.email,
+          username: user.username,
+        };
       },
     }),
   ],
@@ -52,10 +64,17 @@ export const authOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      return { ...token, id: token.id ?? user?.id };
+      return {
+        ...token,
+        id: token.id ?? user?.id,
+        name: token.name ?? user?.name,
+      };
     },
     async session({ session, token }) {
-      return { ...session, user: { ...session.user, id: token.id } };
+      return {
+        ...session,
+        user: { ...session.user, id: token.id, name: token.name },
+      };
     },
   },
 } satisfies NextAuthOptions;
