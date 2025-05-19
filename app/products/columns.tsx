@@ -65,6 +65,13 @@ export const columns: ColumnDef<BaseProduct>[] = [
       const brand = row.original.brand;
       return <div>{brand.name}</div>;
     },
+    filterFn: (row, columnId, filterValue) => {
+      const brand = row.original.brand;
+      if (!brand || !brand.name) return false;
+      return brand.name
+        .toLowerCase()
+        .includes((filterValue || "").toLowerCase());
+    },
   },
   {
     accessorKey: "sku",

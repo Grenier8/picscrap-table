@@ -47,6 +47,7 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       outOfStock: false,
+      link: false,
     });
 
   const table = useReactTable({
@@ -82,6 +83,14 @@ export function DataTable<TData, TValue>({
           value={(table.getColumn("brand")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("brand")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <Input
+          placeholder="Filtrar sku..."
+          value={(table.getColumn("sku")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("sku")?.setFilterValue(event.target.value)
           }
           className="max-w-sm bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />

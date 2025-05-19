@@ -178,7 +178,7 @@ export default function ProductList() {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center py-16 px-8">
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center py-5 px-8">
       <DataTable columns={columns} data={baseProducts} />
     </div>
   );
