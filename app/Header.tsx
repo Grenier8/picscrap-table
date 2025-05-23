@@ -30,7 +30,7 @@ export default function Header() {
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-gray-500">{session.user.name}</div>
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => signOut({ callbackUrl: '/' })}
                   className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
                 >
                   Sign Out

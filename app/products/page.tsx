@@ -1,6 +1,8 @@
 "use client";
 
 import { BaseProduct } from "@/lib/interfaces";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { useEffect, useState } from "react";
@@ -166,16 +168,25 @@ import { useEffect, useState } from "react";
 // }
 
 export default function ProductList() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [baseProducts, setBaseProducts] = useState<BaseProduct[]>([]);
 
   useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      router.replace("/");
+      return;
+    }
     const fetchBaseProducts = () => {
       fetch("/api/base-products")
         .then((res) => res.json())
         .then((data) => setBaseProducts(data.baseProducts));
     };
     fetchBaseProducts();
-  }, []);
+  }, [session, status, router]);
+
+  if (status === "loading" || !session) return null;
 
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center py-5 px-8">

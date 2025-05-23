@@ -132,9 +132,14 @@ export const columns: ColumnDef<BaseProduct>[] = [
 ];
 
 async function getPagesColumns(): Promise<ColumnDef<BaseProduct>[]> {
-  const webpages: Webpage[] = await fetch("/api/webpages")
+  const obtainedWebpages: Webpage[] = await fetch("/api/webpages")
     .then((res) => res.json())
     .then((data) => data.webpages);
+
+  const webpages = [
+    // ...obtainedWebpages.filter((page: Webpage) => page.isBasePage),
+    ...obtainedWebpages.filter((page: Webpage) => !page.isBasePage),
+  ];
 
   return webpages.map((page: Webpage) => {
     return {

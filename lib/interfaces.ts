@@ -17,6 +17,7 @@ export interface Webpage {
   id: number;
   name: string;
   url: string;
+  isBasePage: boolean;
 }
 
 export interface BaseProduct {
