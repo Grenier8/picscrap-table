@@ -19,7 +19,6 @@ export const authOptions = {
         const user = await prisma.user.findUnique({
           where: { username: credentials.username },
         });
-        console.log(user);
 
         if (!user) {
           const newUser = await prisma.user.create({
@@ -47,7 +46,6 @@ export const authOptions = {
         if (!isCorrectPassword) {
           return null;
         }
-        console.log("id: ", user.id, "fullname: ", user.fullname);
 
         return {
           id: String(user.id),
