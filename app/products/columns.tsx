@@ -19,7 +19,14 @@ export const columns: ColumnDef<BaseProduct>[] = [
     header: "Imagen",
     cell: ({ row }) => {
       const image = row.getValue("image");
-      return <Image src={image as string} alt="" width={50} height={50} />;
+      return (
+        <Image
+          src={image ? (image as string) : "/logo-square.png"}
+          alt=""
+          width={50}
+          height={50}
+        />
+      );
     },
   },
   {
@@ -66,12 +73,11 @@ export const columns: ColumnDef<BaseProduct>[] = [
       return <div>{brand.name}</div>;
     },
     filterFn: (row, columnId, filterValue) => {
-      const brand = row.original.brand;
-      if (!brand || !brand.name) return false;
-      return brand.name
-        .toLowerCase()
-        .includes((filterValue || "").toLowerCase());
-    },
+  const brand = row.original.brand;
+  if (!brand || !brand.name) return false;
+  if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
+  return filterValue.includes(brand.name);
+},
   },
   {
     accessorKey: "sku",
