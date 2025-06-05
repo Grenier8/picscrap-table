@@ -73,15 +73,25 @@ export const columns: ColumnDef<BaseProduct>[] = [
       return <div>{brand.name}</div>;
     },
     filterFn: (row, columnId, filterValue) => {
-  const brand = row.original.brand;
-  if (!brand || !brand.name) return false;
-  if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
-  return filterValue.includes(brand.name);
-},
+      const brand = row.original.brand;
+      if (!brand || !brand.name) return false;
+      if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
+      return filterValue.includes(brand.name);
+    },
   },
   {
     accessorKey: "sku",
-    header: "SKU",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          SKU
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "price",
@@ -142,10 +152,7 @@ async function getPagesColumns(): Promise<ColumnDef<BaseProduct>[]> {
     .then((res) => res.json())
     .then((data) => data.webpages);
 
-  const webpages = [
-    // ...obtainedWebpages.filter((page: Webpage) => page.isBasePage),
-    ...obtainedWebpages.filter((page: Webpage) => !page.isBasePage),
-  ];
+  const webpages = obtainedWebpages.filter((page: Webpage) => !page.isBasePage);
 
   return webpages.map((page: Webpage) => {
     return {
@@ -190,10 +197,42 @@ async function getPagesColumns(): Promise<ColumnDef<BaseProduct>[]> {
 
         return (
           <div className={`text-right font-medium ${colorClass}`}>
-            {formatted}
-            {diffIndicator}
+            <a href={product?.link}>
+              {formatted}
+              {diffIndicator}
+            </a>
           </div>
         );
+      },
+      // Sort by price category (red/white/green) and then by price value
+      sortingFn: (rowA, rowB) => {
+        const priceA =
+          rowA.original.products.find((p) => p.webpageId === page.id)?.price ??
+          -1;
+        const priceB =
+          rowB.original.products.find((p) => p.webpageId === page.id)?.price ??
+          -1;
+
+        const basePriceA = rowA.original.price;
+        const basePriceB = rowB.original.price;
+
+        // Categorizar cada precio: 0 = igual, 1 = mayor, -1 = menor, -0.5 = null
+        const getPriceCategory = (price: number, basePrice: number) => {
+          if (price === -1 || basePrice === -1) return -0.5;
+          if (price === basePrice) return 0;
+          return price > basePrice ? 1 : -1;
+        };
+
+        const categoryA = getPriceCategory(priceA, basePriceA);
+        const categoryB = getPriceCategory(priceB, basePriceB);
+
+        // Primero ordenar por categoría
+        if (categoryA !== categoryB) {
+          return categoryA - categoryB;
+        }
+
+        // Si están en la misma categoría, ordenar por precio
+        return priceA - priceB;
       },
     };
   });

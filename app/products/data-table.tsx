@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -40,15 +42,119 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Helper to get array from query param
+  const getArrayParam = (param: string | null) => {
+    if (!param) return [];
+    try {
+      return JSON.parse(param);
+    } catch {
+      return param.split(",").filter(Boolean);
+    }
+  };
+
+  // Initialize filters, sorting, and pagination from URL
+  const parseSorting = () => {
+    const sortParam = searchParams.get("sort");
+    if (!sortParam) return [];
+    try {
+      return JSON.parse(sortParam);
+    } catch {
+      // fallback: sort=name:asc or sort=name:desc
+      const [id, desc] = sortParam.split(":");
+      if (!id) return [];
+      return [{ id, desc: desc === "desc" }];
+    }
+  };
+  const [sorting, setSorting] = React.useState<SortingState>(parseSorting());
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    () => {
+      const name = searchParams.get("name") || "";
+      const brand = getArrayParam(searchParams.get("brand"));
+      const sku = searchParams.get("sku") || "";
+      const filters = [];
+      if (name) filters.push({ id: "name", value: name });
+      if (brand.length) filters.push({ id: "brand", value: brand });
+      if (sku) filters.push({ id: "sku", value: sku });
+      return filters;
+    }
   );
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 8,
+  });
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       outOfStock: false,
       link: false,
     });
+
+  // Sync filter, sorting, and pagination state to URL
+  React.useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    // Filters
+    const nameFilter = columnFilters.find((f) => f.id === "name")
+      ?.value as string;
+    if (nameFilter) {
+      params.set("name", nameFilter);
+    } else {
+      params.delete("name");
+    }
+    const brandFilter = columnFilters.find((f) => f.id === "brand")
+      ?.value as string[];
+    if (brandFilter && brandFilter.length) {
+      params.set("brand", JSON.stringify(brandFilter));
+    } else {
+      params.delete("brand");
+    }
+    const skuFilter = columnFilters.find((f) => f.id === "sku")
+      ?.value as string;
+    if (skuFilter) {
+      params.set("sku", skuFilter);
+    } else {
+      params.delete("sku");
+    }
+    // Sorting
+    if (sorting.length) {
+      params.set("sort", JSON.stringify(sorting));
+    } else {
+      params.delete("sort");
+    }
+
+    router.replace(`?${params.toString()}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnFilters, sorting]);
+
+  // Sync state if URL changes (e.g. browser navigation)
+  React.useEffect(() => {
+    const name = searchParams.get("name") || "";
+    const brand = getArrayParam(searchParams.get("brand"));
+    const sku = searchParams.get("sku") || "";
+    setColumnFilters(() => {
+      const filters = [];
+      if (name) filters.push({ id: "name", value: name });
+      if (brand.length) filters.push({ id: "brand", value: brand });
+      if (sku) filters.push({ id: "sku", value: sku });
+      return filters;
+    });
+    // Sorting
+    setSorting(() => {
+      const sortParam = searchParams.get("sort");
+      if (!sortParam) return [];
+      try {
+        return JSON.parse(sortParam);
+      } catch {
+        const [id, desc] = sortParam.split(":");
+        if (!id) return [];
+        return [{ id, desc: desc === "desc" }];
+      }
+    });
+    // Pagination state is now derived from URL only, so no need to update local state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.toString()]);
 
   const table = useReactTable({
     data,
@@ -60,11 +166,15 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+
     state: {
       sorting,
       columnFilters,
       columnVisibility,
+      pagination,
     },
+    // pagination is managed internally by react-table now
   });
 
   return (

@@ -86,6 +86,7 @@ model Webpage {
   name        String
   url         String    @unique
   description String?
+  logo        String?
   isBasePage  Boolean
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
