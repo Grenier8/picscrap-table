@@ -1,64 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  //Roles
-  const roles = await Promise.all([
-    prisma.role.create({
-      data: {
-        name: "ADMIN",
-      },
-    }),
-  ]);
-
-  //Users
-  await Promise.all([
-    prisma.user.create({
-      data: {
-        email: "grjuako18@gmail.com",
-        fullname: "Admin Picscrap",
-        username: "admin",
-        password: await bcrypt.hash("admin123", 10),
-        roleId: roles[0].id,
-      },
-    }),
-  ]);
-
-  //Webpages
-  await Promise.all([
-    prisma.webpage.create({
-      data: {
-        name: "Picslab",
-        url: "https://picslabstore.cl",
-        isBasePage: true,
-      },
-    }),
-    prisma.webpage.create({
-      data: {
-        name: "David and Joseph",
-        url: "https://davidandjoseph.cl",
-        isBasePage: false,
-      },
-    }),
-    prisma.webpage.create({
-      data: {
-        name: "Rincón Fotográfico",
-        url: "https://rinconfotografico.cl",
-        isBasePage: false,
-      },
-    }),
-    prisma.webpage.create({
-      data: {
-        name: "Apertura",
-        url: "https://apertura.cl",
-        isBasePage: false,
-      },
-    }),
-  ]);
-
-  //Brands
   const brands = await Promise.all([
     prisma.brand.create({
       data: {
