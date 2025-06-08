@@ -2,7 +2,15 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { type NextAuthOptions } from "next-auth";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+// Generate a random secret if not in production
+const secret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'dev-secret');
+
+if (process.env.NODE_ENV === 'production' && !secret) {
+  throw new Error('NEXTAUTH_SECRET environment variable is required in production');
+}
+
 export const authOptions = {
+  secret,
   providers: [
     CredentialsProvider({
       name: "credentials",
