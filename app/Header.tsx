@@ -24,9 +24,10 @@ export default function Header() {
 
   const handleApiCall = async () => {
     try {
+      console.log("Call to API: start scraping");
       setIsLoading(true);
       const response = await startScraping();
-
+      console.log("Response from API: ", response);
       if (response.status === 200) {
         setResponseResult("El scraping ha sido iniciado correctamente");
       } else if (response.status === 204) {

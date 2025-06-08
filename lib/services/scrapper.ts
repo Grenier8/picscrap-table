@@ -6,9 +6,12 @@ interface ScrapeTriggerResponse {
 
 export async function startScraping(): Promise<ScrapeTriggerResponse> {
   try {
-    const response = await fetch(process.env.SCRAPER_URL + "/api/scrape", {
-      method: "POST",
-    });
+    const response = await fetch(
+      process.env.SCRAPER_URL + "/api/functions/scrape",
+      {
+        method: "POST",
+      }
+    );
 
     if (response.status === 204) {
       return {
