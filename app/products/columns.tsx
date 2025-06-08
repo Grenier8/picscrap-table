@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import { BaseProduct, Webpage } from "@/lib/interfaces";
 
-export const columns: ColumnDef<BaseProduct>[] = [
+export const getColumns = (webpages: Webpage[]): ColumnDef<BaseProduct>[] => [
   {
     accessorKey: "image",
     header: "Imagen",
@@ -116,7 +116,7 @@ export const columns: ColumnDef<BaseProduct>[] = [
       return <div className="text-right font-medium">{formatted}</div>;
     },
   },
-  ...(await getPagesColumns()),
+  ...getPagesColumns(webpages),
   {
     id: "actions",
     cell: ({ row }) => {
@@ -147,14 +147,8 @@ export const columns: ColumnDef<BaseProduct>[] = [
   },
 ];
 
-async function getPagesColumns(): Promise<ColumnDef<BaseProduct>[]> {
-  const obtainedWebpages: Webpage[] = await fetch("/api/webpages")
-    .then((res) => res.json())
-    .then((data) => data.webpages);
-
-  const webpages = obtainedWebpages.filter((page: Webpage) => !page.isBasePage);
-
-  return webpages.map((page: Webpage) => {
+function getPagesColumns(webpages: Webpage[]): ColumnDef<BaseProduct>[] {
+  return webpages.filter((page: Webpage) => !page.isBasePage).map((page: Webpage) => {
     return {
       accessorKey: page.name,
       header: ({ column }) => {
