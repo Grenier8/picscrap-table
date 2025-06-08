@@ -6,7 +6,7 @@ interface ScrapeTriggerResponse {
 
 export async function startScraping(): Promise<ScrapeTriggerResponse> {
   try {
-    const response = await fetch("http://localhost:3001/api/scrape", {
+    const response = await fetch(process.env.SCRAPER_URL + "/api/scrape", {
       method: "POST",
     });
 
