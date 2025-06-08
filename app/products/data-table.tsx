@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { BaseProduct } from "@/lib/interfaces";
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -224,14 +225,10 @@ export function DataTable<TData, TValue>({
             {Array.from(
               new Set(
                 data
-                  .map((row) =>
-                    typeof row === "object" &&
-                    row !== null &&
-                    "brand" in row &&
-                    typeof (row as any).brand?.name === "string"
-                      ? (row as any).brand.name
-                      : undefined
-                  )
+                  .map((row) => {
+                    const product = row as BaseProduct;
+                    return product.brand?.name;
+                  })
                   .filter((name): name is string => Boolean(name))
                   .sort((a, b) => a.localeCompare(b))
               )
