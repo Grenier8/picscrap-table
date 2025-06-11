@@ -7,17 +7,14 @@ interface ScrapeTriggerResponse {
 export async function startScraping(): Promise<ScrapeTriggerResponse> {
   try {
     // Use NEXT_PUBLIC_ prefix for client-side environment variables
-  const apiUrl = process.env.NEXT_PUBLIC_SCRAPER_URL || '';
-  if (!apiUrl) {
-    throw new Error('Scraper URL is not configured');
-  }
-
-  const response = await fetch(
-    `${apiUrl}/api/functions/scrape`,
-    {
-      method: "POST",
+    const apiUrl = process.env.NEXT_PUBLIC_SCRAPER_URL || "";
+    if (!apiUrl) {
+      throw new Error("Scraper URL is not configured");
     }
-  );
+
+    const response = await fetch(`${apiUrl}/api/scrape`, {
+      method: "POST",
+    });
 
     if (response.status === 204) {
       return {
