@@ -4,10 +4,38 @@ interface ScrapeTriggerResponse {
   message: string;
 }
 
-export async function startScraping(): Promise<ScrapeTriggerResponse> {
+export enum EFilteringType {
+  SKU = "SKU",
+  SIMILARITY = "SIMILARITY",
+  OPENAI = "OPENAI",
+}
+
+export enum EScrapType {
+  FULL = "FULL",
+  LITE = "LITE",
+}
+
+export async function startScraping(
+  webpageIds: number[],
+  scrapType: EScrapType,
+  filteringType: EFilteringType
+): Promise<ScrapeTriggerResponse> {
   try {
-    const response = await fetch("http://localhost:3001/api/scrape", {
+    const apiUrl = process.env.NEXT_PUBLIC_SCRAPER_URL || "";
+    if (!apiUrl) {
+      throw new Error("Scraper URL is not configured");
+    }
+
+    const response = await fetch(`${apiUrl}/api/scrape`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        webpageIds,
+        scrapType,
+        filteringType,
+      }),
     });
 
     if (response.status === 204) {
