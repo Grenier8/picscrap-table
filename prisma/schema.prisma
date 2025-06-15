@@ -35,7 +35,7 @@ model Role {
 }
 
 model Product {
-  id            Int          @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
   sku           String
   brandId       Int
@@ -45,14 +45,14 @@ model Product {
   link          String?
   image         String?
   webpageId     Int
-  baseProductId Int?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  brand         Brand        @relation("ProductBrand", fields: [brandId], references: [id])
-  webpage       Webpage      @relation("ProductWebpage", fields: [webpageId], references: [id])
-  baseProduct   BaseProduct? @relation("BaseProduct", fields: [baseProductId], references: [id])
+  baseProductId Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  brand         Brand       @relation("ProductBrand", fields: [brandId], references: [id])
+  webpage       Webpage     @relation("ProductWebpage", fields: [webpageId], references: [id])
+  baseProduct   BaseProduct @relation("BaseProduct", fields: [baseProductId], references: [id])
 
-  @@unique([sku, webpageId])
+  @@unique([sku, webpageId, baseProductId])
 }
 
 model BaseProduct {
@@ -100,7 +100,7 @@ model Log {
   webpage     String
   event       String
   message     String
-  duration    String
+  duration    Int
   url         String
   data        String
   createdAt   DateTime @default(now())

@@ -1,17 +1,35 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
+  const { status } = useSession();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     try {
       event.preventDefault();
+      setIsLoading(true);
+      setError(null);
+      
       const formData = new FormData(event.currentTarget);
       const response = await signIn("credentials", {
         ...Object.fromEntries(formData),
@@ -20,13 +38,15 @@ export default function LoginPage() {
 
       if (response?.error) {
         setError("Credenciales inválidas");
+        setIsLoading(false);
         return;
       }
 
-      router.push("/");
-      router.refresh();
-    } catch {
-      setError("An error occurred during login");
+      // The useEffect will handle the redirect when the session updates
+    } catch (error) {
+      console.error('Login error:', error);
+      setError("Ocurrió un error durante el inicio de sesión");
+      setIsLoading(false);
     }
   }
 
@@ -75,17 +95,23 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={isLoading}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
             >
-              Iniciar sesión
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Iniciando sesión...
+                </>
+              ) : (
+                'Iniciar sesión'
+              )}
             </button>
           </div>
         </form>
-        <div className="text-center">
-          <Link href="/register" className="text-blue-600 hover:underline">
-            No account? Register.
-          </Link>
-        </div>
       </div>
     </div>
   );

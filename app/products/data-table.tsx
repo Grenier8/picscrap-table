@@ -14,6 +14,14 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -22,17 +30,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { BaseProduct } from "@/lib/interfaces";
-import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import * as React from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -54,6 +54,12 @@ export function DataTable<TData, TValue>({
     } catch {
       return param.split(",").filter(Boolean);
     }
+  };
+
+  const getPaginationParams = () => {
+    const pageIndex = parseInt(searchParams.get("pageIndex") || "0");
+    const pageSize = parseInt(searchParams.get("pageSize") || "7");
+    return { pageIndex, pageSize };
   };
 
   // Initialize filters, sorting, and pagination from URL
@@ -82,10 +88,9 @@ export function DataTable<TData, TValue>({
       return filters;
     }
   );
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 8,
-  });
+  const [pagination, setPagination] = React.useState<PaginationState>(
+    getPaginationParams()
+  );
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -125,9 +130,21 @@ export function DataTable<TData, TValue>({
       params.delete("sort");
     }
 
-    router.replace(`?${params.toString()}`);
+    // Pagination
+    if (pagination.pageIndex > 0) {
+      params.set("pageIndex", pagination.pageIndex.toString());
+    } else {
+      params.delete("pageIndex");
+    }
+    if (pagination.pageSize !== 8) {
+      params.set("pageSize", pagination.pageSize.toString());
+    } else {
+      params.delete("pageSize");
+    }
+
+    router.replace(`?${params.toString()}`, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columnFilters, sorting]);
+  }, [columnFilters, sorting, pagination]);
 
   // Sync state if URL changes (e.g. browser navigation)
   React.useEffect(() => {
@@ -160,6 +177,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -175,7 +193,6 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       pagination,
     },
-    // pagination is managed internally by react-table now
   });
 
   return (
