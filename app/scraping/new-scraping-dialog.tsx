@@ -147,7 +147,7 @@ export function NewScrapingDialog({
       <DialogTrigger asChild={asChild}>
         {asChild ? children : <Button>Nuevo Scraping</Button>}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px]  text-gray-900 dark:text-gray-100">
         <DialogHeader>
           <DialogTitle>Nuevo Scraping</DialogTitle>
           <DialogDescription>

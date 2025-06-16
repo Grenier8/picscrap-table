@@ -61,7 +61,7 @@ export default function Home() {
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-5 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Resumen de Precios
           </h1>

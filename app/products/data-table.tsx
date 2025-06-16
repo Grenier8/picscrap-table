@@ -238,7 +238,7 @@ export function DataTable<TData, TValue>({
               </svg>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="max-h-64 overflow-y-auto bg-gray-900 dark:bg-gray-900 border border-gray-700 rounded shadow-lg mt-2 w-56 p-1">
+          <DropdownMenuContent className="max-h-64 overflow-y-auto bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 border border-gray-700 rounded shadow-lg mt-2 w-56 p-1">
             {Array.from(
               new Set(
                 data
@@ -258,7 +258,7 @@ export function DataTable<TData, TValue>({
                   key={brand}
                   checked={checked}
                   className={
-                    `flex items-center px-3 py-2 rounded text-gray-100 text-sm cursor-pointer transition-colors relative before:hidden ` +
+                    `flex items-center px-3 py-2 rounded text-gray-900 dark:text-gray-100 text-sm cursor-pointer transition-colors relative before:hidden ` +
                     (checked
                       ? "bg-blue-700/60 font-semibold"
                       : "hover:bg-gray-700/80")
