@@ -39,7 +39,7 @@ export function DataTable<TData, TValue>({
 
   const getPaginationParams = () => {
     const pageIndex = parseInt(searchParams.get("pageIndex") || "0");
-    const pageSize = parseInt(searchParams.get("pageSize") || "7");
+    const pageSize = parseInt(searchParams.get("pageSize") || "9");
     return { pageIndex, pageSize };
   };
 

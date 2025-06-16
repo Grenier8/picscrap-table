@@ -194,7 +194,7 @@ export function NewScrapingDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={EFilteringType.SIMILARITY}>
-                    Similaridad
+                    Similitud
                   </SelectItem>
                   <SelectItem value={EFilteringType.OPENAI}>
                     OPENAI (De Pago)
