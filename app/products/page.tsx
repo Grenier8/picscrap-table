@@ -45,7 +45,7 @@ export default function ProductList() {
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center py-3 px-8">
       <div className="flex justify-center items-center mb-4 mt-2">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Productos
+          Tabla de Productos
         </h1>
       </div>
       <DataTable columns={columns} data={baseProducts} />

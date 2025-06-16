@@ -35,7 +35,7 @@ export const getColumns = (): ColumnDef<ScrapingResults>[] => [
       const color =
         status === "FINALIZADO"
           ? "text-green-500"
-          : status === "EN_PROCESO"
+          : status === "EN_PROGRESO"
           ? "text-cyan-500"
           : "text-red-500";
       return <div className={color}>{status}</div>;

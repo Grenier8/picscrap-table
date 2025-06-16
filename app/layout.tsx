@@ -1,14 +1,20 @@
 // app/layout.tsx
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
 import Header from "./Header";
 import Providers from "./providers";
 import { ThemeProvider } from "./theme-provider";
 
 export const metadata = {
-  title: "Superblog",
-  description: "A blog app using Next.js and Prisma",
+  title: "Picscrap",
+  description: "Web scraping app",
 };
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export default function RootLayout({
   children,
@@ -16,11 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <Script src="http://localhost:8097" strategy="afterInteractive" />
-      </head>
-      <body className="dark:bg-gray-900 text-gray-100 min-h-screen">
+    <html lang="en" className={`${inter.className} dark`}>
+      <head></head>
+      <body className="font-sans dark:bg-gray-900 text-gray-100 min-h-screen">
         <ThemeProvider>
           <Providers>
             <div className="min-h-screen flex flex-col">

@@ -96,7 +96,7 @@ export const getColumns = (webpages: Webpage[]): ColumnDef<BaseProduct>[] => [
     accessorKey: "price",
     header: ({ column }) => {
       return (
-        <div className="flex items-center">
+        <div className="flex items-center justify-end">
           <h1>Precio</h1>
           <Button
             className="pr-0"
@@ -157,7 +157,7 @@ function getPagesColumns(webpages: Webpage[]): ColumnDef<BaseProduct>[] {
         accessorKey: page.name,
         header: ({ column }) => {
           return (
-            <div className="flex items-center">
+            <div className="flex items-center justify-end">
               <h1>{page.name}</h1>
               <Button
                 className="pr-0"
