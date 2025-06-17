@@ -8,11 +8,13 @@ export enum EFilteringType {
   SKU = "SKU",
   SIMILARITY = "SIMILARITY",
   OPENAI = "OPENAI",
+  NONE = "NONE",
 }
 
 export enum EScrapType {
   FULL = "FULL",
   LITE = "LITE",
+  PRICE = "PRICE",
 }
 
 export async function startScraping(
@@ -22,14 +24,16 @@ export async function startScraping(
 ): Promise<ScrapeTriggerResponse> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_SCRAPER_URL || "";
-    if (!apiUrl) {
-      throw new Error("Scraper URL is not configured");
+    const apiKey = process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "";
+    if (!apiUrl || !apiKey) {
+      throw new Error("Scraper URL or API key is not configured");
     }
 
     const response = await fetch(`${apiUrl}/api/scrape`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": apiKey,
       },
       body: JSON.stringify({
         webpageIds,

@@ -170,9 +170,23 @@ export function NewScrapingDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={EScrapType.LITE}>
-                    Sencillo (Recomendado)
+                    <span className="font-bold">Sencillo</span>{" "}
+                    <span className="text-xs">
+                      (Recomendado) - solo se añaden nuevas relaciones
+                    </span>
                   </SelectItem>
-                  <SelectItem value={EScrapType.FULL}>Completo</SelectItem>
+                  <SelectItem value={EScrapType.FULL}>
+                    <span className="font-bold">Completo</span>{" "}
+                    <span className="text-xs">
+                      - se restablecen todas las relaciones
+                    </span>
+                  </SelectItem>
+                  <SelectItem value={EScrapType.PRICE}>
+                    <span className="font-bold">Precio</span>{" "}
+                    <span className="text-xs">
+                      - solo se actualizan los precios
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -194,10 +208,22 @@ export function NewScrapingDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={EFilteringType.SIMILARITY}>
-                    Similitud
+                    <span className="font-bold">Similitud</span>{" "}
+                    <span className="text-xs">
+                      {" "}
+                      - se filtra usando similitud (nombre, sku, imagen)
+                    </span>
                   </SelectItem>
                   <SelectItem value={EFilteringType.OPENAI}>
-                    OPENAI (De Pago)
+                    <span className="font-bold">OPENAI</span> (De Pago){" "}
+                    <span className="text-xs"> - se filtra usando IA</span>
+                  </SelectItem>
+                  <SelectItem value={EFilteringType.NONE}>
+                    <span className="font-bold">Sin Filtrado</span>{" "}
+                    <span className="text-xs">
+                      {" "}
+                      - no se obtienen productos nuevos
+                    </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
