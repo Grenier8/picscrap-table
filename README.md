@@ -1,168 +1,185 @@
-# Next.js & Prisma Postgres Auth Starter
+# Picscrap Table
 
-This repository provides a boilerplate to quickly set up a Next.js demo application with authentication using [NextAuth.js v4](https://next-auth.js.org/), [Prisma Postgres](https://www.prisma.io/postgres) and [Prisma ORM](https://www.prisma.io/orm), and deploy it to Vercel. It includes an easy setup process and example routes that demonstrate basic CRUD operations against the database.
+Dashboard web para comparar precios de productos de fotografia entre multiples tiendas, con autenticacion, vista de productos base vs competencia y disparo de procesos de scraping externos.
 
-## Features
+## Overview
 
-- Next.js 15 app with App Router, Server Actions & API Routes
-- Data modeling, database migrations, seeding & querying
-- Log in and sign up authentication flows
-- CRUD operations to create, view and delete blog posts
-- Pagination, filtering & relations queries
+`picscrap-table` es una aplicacion hecha con Next.js (App Router) que:
 
-## Getting started
+- muestra un resumen de precios comparando una tienda base contra tiendas competidoras.
+- renderiza una tabla de productos base con precios relacionados por sitio.
+- permite iniciar procesos de scraping en un servicio externo y revisar su historial.
+- guarda y consulta datos en PostgreSQL via Prisma.
 
-### 1. Install dependencies
+## Stack Tecnologico
 
-After cloning the repo and navigating into it, install dependencies:
+- Next.js 15 + React 19 + TypeScript
+- Tailwind CSS + componentes UI basados en Radix/shadcn
+- Prisma ORM 6 + `@prisma/extension-accelerate`
+- PostgreSQL
+- NextAuth v4 (Credentials provider)
+- TanStack React Table
 
+## Modulos Principales
+
+- `app/page.tsx`: dashboard con resumen de precios por pagina.
+- `app/products/*`: tabla principal de productos base y comparacion por sitio.
+- `app/scraping/*`: historial de scraping y modal para iniciar ejecuciones.
+- `app/login/page.tsx`: autenticacion de usuarios.
+- `app/api/*`: endpoints internos para resumen, productos, paginas y logs.
+- `auth.ts`: configuracion de NextAuth y validacion de credenciales.
+- `lib/services/scrapper.ts`: cliente HTTP hacia el scraper externo.
+- `prisma/schema.prisma`: modelo de datos.
+- `prisma/seed.ts`: datos semilla (roles, usuario admin, paginas, marcas, productos).
+
+## Requisitos
+
+- Node.js 20+ recomendado
+- npm
+- Base de datos PostgreSQL accesible por `DATABASE_URL`
+
+## Variables de Entorno
+
+Crea un archivo `.env` en la raiz del proyecto:
+
+```bash
+DATABASE_URL="postgresql://user:password@host:5432/database"
+NEXTAUTH_SECRET="RANDOM_32_CHARACTER_STRING"
+NEXT_PUBLIC_SCRAPER_URL="https://your-scraper-service.com"
+NEXT_PUBLIC_SCRAPER_API_KEY="your-scraper-api-key"
 ```
+
+Notas importantes:
+
+- `NEXTAUTH_SECRET` es requerido en produccion.
+- `NEXT_PUBLIC_*` se expone al cliente; no uses secretos sensibles reales.
+- Existe `AUTH_SECRET` en `.env.example` por herencia de plantilla, pero el codigo usa `NEXTAUTH_SECRET`.
+
+## Instalacion y Ejecucion Local
+
+1. Instalar dependencias:
+
+```bash
 npm install
 ```
 
-### 1. Create a Prisma Postgres instance
-
-Create a Prisma Postgres instance by running the following command:
-
-```
-npx prisma init --db
-```
-
-This command is interactive and will prompt you to:
-
-1. Log in to the [Prisma Console](https://console.prisma.io)
-1. Select a **region** for your Prisma Postgres instance
-1. Give a **name** to your Prisma project
-
-Once the command has terminated, copy the **Database URL** from the terminal output. You'll need it in the next step when you configure your `.env` file.
-
-<!-- Create a Prisma Postgres database instance using [Prisma Data Platform](https://console.prisma.io):
-
-1. Navigate to [Prisma Data Platform](https://console.prisma.io).
-2. Click **New project** to create a new project.
-3. Enter a name for your project in the **Name** field.
-4. Inside the **Prisma Postgres** section, click **Get started**.
-5. Choose a region close to your location from the **Region** dropdown.
-6. Click **Create project** to set up your database. This redirects you to the database setup page.
-7. In the **Set up database access** section, copy the `DATABASE_URL`. You will use this in the next steps. -->
-
-### 2. Set up your `.env` file
-
-You now need to configure your database connection via an environment variable.
-
-First, create an `.env` file:
-
-```bash
-touch .env
-```
-
-Then update the `.env` file by replacing the existing `DATABASE_URL` value with the one you previously copied. It will look similar to this:
-
-```bash
-DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=PRISMA_POSTGRES_API_KEY"
-```
-
-To ensure your authentication works properly, you'll also need to set [env vars for NextAuth.js](https://next-auth.js.org/configuration/options):
-
-```bash
-AUTH_SECRET="RANDOM_32_CHARACTER_STRING"
-```
-
-You can generate a random 32 character string for the `AUTH_SECRET` secret with this command:
-
-```
-npx auth secret
-```
-
-In the end, your entire `.env` file should look similar to this (but using _your own values_ for the env vars):
-
-```bash
-DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMWEzMjBiYTEtYjg2Yy00ZTA5LThmZTktZDBhODA3YjQwZjBkIiwidGVuYW50X2lkIjoiY2RhYmM3ZTU1NzdmMmIxMmM0ZTI1Y2IwNWJhZmZhZmU4NjAxNzkxZThlMzhlYjI1NDgwNmIzZjI5NmU1NTkzNiIsImludGVybmFsX3NlY3JldCI6ImI3YmQzMjFhLTY2ODQtNGRiMC05ZWRiLWIyMGE2ZTQ0ZDMwMSJ9.JgKXQBatjjh7GIG3_fRHDnia6bDv8BdwvaX5F-XdBfw"
-
-AUTH_SECRET="gTwLSXFeNWFRpUTmxlRniOfegXYw445pd0k6JqXd7Ag="
-```
-
-### 3. Migrate the database
-
-Run the following commands to set up your database and Prisma schema:
+2. Ejecutar migraciones:
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-<!--
-<details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
-
-```bash
-# Using yarn
-yarn prisma migrate dev --name init
-
-# Using pnpm
-pnpm prisma migrate dev --name init
-
-# Using bun
-bun prisma migrate dev --name init
-```
-
-</details> -->
-
-### 4. Seed the database
-
-Add initial data to your database:
+3. (Opcional) Cargar datos semilla:
 
 ```bash
 npx prisma db seed
 ```
 
-<details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
-
-```bash
-# Using yarn
-yarn prisma db seed
-
-# Using pnpm
-pnpm prisma db seed
-
-# Using bun
-bun prisma db seed
-```
-
-</details>
-
-### 5. Run the app
-
-Start the development server:
+4. Levantar entorno de desarrollo:
 
 ```bash
 npm run dev
 ```
 
-<details>
+5. Abrir en navegador:
 
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+`http://localhost:3000`
 
-```bash
-# Using yarn
-yarn dev
+## Credenciales Iniciales (Seed)
 
-# Using pnpm
-pnpm run dev
+Si ejecutaste `prisma db seed`, se crea:
 
-# Using bun
-bun run dev
+- usuario: `admin`
+- password: `admin123`
+
+Se recomienda cambiar estas credenciales para cualquier entorno no local.
+
+## Scripts Disponibles
+
+- `npm run dev`: inicia Next.js en modo desarrollo con Turbopack.
+- `npm run build`: ejecuta migraciones de despliegue y build de Next.
+- `npm run start`: levanta el servidor en modo produccion.
+- `npm run lint`: corre lint con `next lint`.
+
+Nota: el script de `build` actual usa una expresion de shell tipo bash, que puede comportarse distinto fuera de entornos compatibles.
+
+## Flujo Funcional
+
+1. Usuario inicia sesion en `/login`.
+2. Dashboard (`/`) consulta `/api/price-summary`.
+3. Productos (`/products`) consulta:
+   - `/api/base-products`
+   - `/api/webpages`
+4. Scraping (`/scraping`) consulta `/api/logs` y permite disparar scraping externo.
+5. El servicio externo debe registrar eventos/logs en la base de datos para que aparezcan en el historial.
+
+## API Interna (App Router)
+
+- `GET /api/price-summary`: resumen por pagina (precios mayor/igual/menor vs base).
+- `GET /api/base-products`: productos base con marca y relaciones.
+- `GET /api/webpages`: listado de paginas configuradas.
+- `GET /api/logs`: ultimos 50 logs de scraping.
+- `/api/auth/[...nextauth]`: autenticacion NextAuth.
+
+## Integracion de Scraping Externo
+
+El frontend envia `POST` a:
+
+- `${NEXT_PUBLIC_SCRAPER_URL}/api/scrape`
+
+Headers:
+
+- `Content-Type: application/json`
+- `x-api-key: ${NEXT_PUBLIC_SCRAPER_API_KEY}`
+
+Body:
+
+```json
+{
+  "webpageIds": [1, 2, 3],
+  "scrapType": "FULL | LITE | PRICE",
+  "filteringType": "SKU | SIMILARITY | OPENAI | NONE"
+}
 ```
 
-</details>
+Este repositorio no implementa el crawler/scraper en si; solo consume su API y muestra resultados.
 
-Once the server is running, visit `http://localhost:3000` to start using the app.
+## Modelo de Datos (Resumen)
 
-## Next steps
+- `Role` y `User` para autenticacion/autorizacion.
+- `Webpage` para sitios monitoreados (`isBasePage` marca la pagina base).
+- `BaseProduct` como producto canonico de referencia.
+- `Product` como producto encontrado en cada pagina y enlazado a un `BaseProduct`.
+- `Brand` para normalizacion de marcas.
+- `Log` para traza de ejecuciones de scraping.
 
-- [Prisma ORM documentation](https://www.prisma.io/docs/orm)
-- [Prisma Client API reference](https://www.prisma.io/docs/orm/prisma-client)
-- [Join our Discord community](https://discord.com/invite/prisma)
-- [Follow us on Twitter](https://twitter.com/prisma)
+## Limitaciones y Consideraciones
+
+- No hay script de tests automatizados en `package.json`.
+- El modulo de scraping depende de un servicio externo y su disponibilidad.
+- El registro automatico en auth crea usuarios nuevos si no existen; revisa esta logica para produccion.
+- Hay diferencias heredadas de plantilla (por ejemplo nombres de variables de entorno) que conviene estandarizar.
+
+## Estructura Rapida
+
+```text
+app/
+  api/
+  login/
+  products/
+  scraping/
+auth.ts
+lib/
+  prisma.ts
+  services/scrapper.ts
+prisma/
+  schema.prisma
+  seed.ts
+```
+
+## Recomendaciones para Produccion
+
+- Mover el trigger de scraping a un endpoint server-side para proteger credenciales.
+- Definir politicas de usuarios (evitar registro implicito en login si no es deseado).
+- Alinear `build` script para CI/CD objetivo (Linux/Windows).
+- Agregar pruebas (unitarias y de integracion de API).
