@@ -41,7 +41,9 @@ model Product {
   brandId       Int
   description   String?
   price         Float
-  outOfStock    Boolean?
+  outOfStock          Boolean?
+  correlationScore    Float?
+  correlationMethod   String?
   link          String?
   image         String?
   webpageId     Int
