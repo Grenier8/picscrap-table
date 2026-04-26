@@ -61,6 +61,7 @@ export async function startScraping(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred";
+    console.error("startScraping failed:", errorMessage);
     return { result: "error", status: 500, message: errorMessage };
   }
 }
@@ -94,6 +95,7 @@ export async function startMatching(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred";
+    console.error("startMatching failed:", errorMessage);
     return { result: "error", status: 500, message: errorMessage };
   }
 }

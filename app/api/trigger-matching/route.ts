@@ -11,31 +11,39 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  const response = await fetch(`${scraperUrl}/api/match`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": scraperApiKey,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (response.status === 204) {
-    return NextResponse.json(
-      {
-        result: "busy",
-        status: 204,
-        message: "El matching se encuentra actualmente en ejecución",
+    const response = await fetch(`${scraperUrl}/api/match`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": scraperApiKey,
       },
-      { status: 204 }
+      body: JSON.stringify(body),
+    });
+
+    if (response.status === 204) {
+      return NextResponse.json(
+        {
+          result: "busy",
+          status: 204,
+          message: "El matching se encuentra actualmente en ejecución",
+        },
+        { status: 204 }
+      );
+    }
+
+    const data = await response.json();
+    return NextResponse.json(
+      { result: "success", status: response.status, message: data.message || "" },
+      { status: response.status }
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { result: "error", status: 500, message },
+      { status: 500 }
     );
   }
-
-  const data = await response.json();
-  return NextResponse.json(
-    { result: "success", status: response.status, message: data.message || "" },
-    { status: response.status }
-  );
 }
