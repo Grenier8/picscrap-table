@@ -23,7 +23,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import {
   EFilteringType,
+  EMatchMode,
   EScrapType,
+  startMatching,
   startScraping,
 } from "@/lib/services/scrapper";
 import { useEffect, useState } from "react";
@@ -53,6 +55,9 @@ export function NewScrapingDialog({
   const [filteringType, setFilteringType] = useState<EFilteringType>(
     EFilteringType.SIMILARITY
   );
+  const [runScraping, setRunScraping] = useState(true);
+  const [runMatching, setRunMatching] = useState(true);
+  const [matchMode, setMatchMode] = useState<EMatchMode>(EMatchMode.NEW);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -82,15 +87,33 @@ export function NewScrapingDialog({
       });
       return;
     }
+    if (!runScraping && !runMatching) {
+      toast({
+        title: "Error",
+        description: "Selecciona al menos una operación",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      const result = await startScraping(
-        selectedWebpages,
-        scrapType,
-        undefined,
-        filteringType
-      );
+      let result;
+
+      if (runScraping && runMatching) {
+        result = await startScraping(
+          selectedWebpages,
+          scrapType,
+          true,
+          filteringType,
+          matchMode
+        );
+      } else if (runScraping) {
+        // Explicitly pass false so backend knows this is scrape-only (not legacy)
+        result = await startScraping(selectedWebpages, scrapType, false);
+      } else {
+        result = await startMatching(selectedWebpages, filteringType, matchMode);
+      }
 
       toast({
         title:
@@ -101,25 +124,20 @@ export function NewScrapingDialog({
             : "Error",
         description:
           result.status === 200
-            ? "El scraping ha comenzado exitosamente"
+            ? "La operación ha comenzado exitosamente"
             : result.status === 204
-            ? "El scraping se encuentra actualmente en ejecución"
-            : "Ha ocurrido un error al iniciar el scraping",
-        variant:
-          result.status === 200
-            ? "default"
-            : result.status === 204
-            ? "default"
-            : "destructive",
+            ? "Una operación se encuentra actualmente en ejecución"
+            : "Ha ocurrido un error al iniciar la operación",
+        variant: result.status === 500 ? "destructive" : "default",
       });
 
       setOpen(false);
       onScrapingStarted?.();
     } catch (error) {
-      console.error("Error starting scraping:", error);
+      console.error("Error:", error);
       toast({
         title: "Error",
-        description: "No se pudo iniciar el scraping",
+        description: "No se pudo iniciar la operación",
         variant: "destructive",
       });
     } finally {
@@ -157,101 +175,144 @@ export function NewScrapingDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="scrap-type" className="text-right">
-              Tipo de Scraping
-            </Label>
-            <div className="col-span-3">
-              <Select
-                value={scrapType}
-                onValueChange={(value) => setScrapType(value as EScrapType)}
-              >
-                <SelectTrigger id="scrap-type">
-                  <SelectValue placeholder="Selecciona un tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={EScrapType.LITE}>
-                    <span className="font-bold">Sencillo</span>{" "}
-                    <span className="text-xs">
-                      (Recomendado) - solo se añaden nuevas relaciones
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={EScrapType.FULL}>
-                    <span className="font-bold">Completo</span>{" "}
-                    <span className="text-xs">
-                      - se restablecen todas las relaciones
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={EScrapType.PRICE}>
-                    <span className="font-bold">Precio</span>{" "}
-                    <span className="text-xs">
-                      - solo se actualizan los precios
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Operation checkboxes */}
+          <div className="space-y-2">
+            <Label>Operaciones</Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="run-scraping"
+                checked={runScraping}
+                onCheckedChange={(checked) => setRunScraping(checked === true)}
+              />
+              <label htmlFor="run-scraping" className="text-sm font-medium leading-none">
+                Scraping{" "}
+                <span className="text-xs text-muted-foreground">
+                  — raspar y guardar todos los productos en la base de datos
+                </span>
+              </label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="run-matching"
+                checked={runMatching}
+                onCheckedChange={(checked) => setRunMatching(checked === true)}
+              />
+              <label htmlFor="run-matching" className="text-sm font-medium leading-none">
+                Matching{" "}
+                <span className="text-xs text-muted-foreground">
+                  — correlacionar productos con la base de referencia
+                </span>
+              </label>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="filtering-type" className="text-right">
-              Tipo de Filtrado
-            </Label>
-            <div className="col-span-3">
-              <Select
-                value={filteringType}
-                onValueChange={(value) =>
-                  setFilteringType(value as EFilteringType)
-                }
-              >
-                <SelectTrigger id="filtering-type">
-                  <SelectValue placeholder="Selecciona un tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={EFilteringType.SIMILARITY}>
-                    <span className="font-bold">Similitud</span>{" "}
-                    <span className="text-xs">
-                      {" "}
-                      - se filtra usando similitud (nombre, sku, imagen)
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={EFilteringType.SKU}>
-                    <span className="font-bold">SKU</span>{" "}
-                    <span className="text-xs">
-                      {" "}
-                      - se filtra por coincidencia exacta de código SKU
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={EFilteringType.PIPELINE}>
-                    <span className="font-bold">Pipeline</span>{" "}
-                    <span className="text-xs">
-                      {" "}
-                      - pipeline multi-etapa: SKU + embeddings + LLM local
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={EFilteringType.PIPELINE_LITE}>
-                    <span className="font-bold">Pipeline Lite</span>{" "}
-                    <span className="text-xs">
-                      {" "}
-                      - pipeline sin LLM: solo SKU + embeddings
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={EFilteringType.OPENAI}>
-                    <span className="font-bold">OPENAI</span> (De Pago){" "}
-                    <span className="text-xs"> - se filtra usando IA</span>
-                  </SelectItem>
-                  <SelectItem value={EFilteringType.NONE}>
-                    <span className="font-bold">Sin Filtrado</span>{" "}
-                    <span className="text-xs">
-                      {" "}
-                      - no se obtienen productos nuevos
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Scrap type — only when scraping */}
+          {runScraping && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="scrap-type" className="text-right">
+                Tipo de Scraping
+              </Label>
+              <div className="col-span-3">
+                <Select
+                  value={scrapType}
+                  onValueChange={(value) => setScrapType(value as EScrapType)}
+                >
+                  <SelectTrigger id="scrap-type">
+                    <SelectValue placeholder="Selecciona un tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={EScrapType.LITE}>
+                      <span className="font-bold">Sencillo</span>{" "}
+                      <span className="text-xs">(Recomendado) - solo se añaden nuevas relaciones</span>
+                    </SelectItem>
+                    <SelectItem value={EScrapType.FULL}>
+                      <span className="font-bold">Completo</span>{" "}
+                      <span className="text-xs">- se restablecen todas las relaciones</span>
+                    </SelectItem>
+                    <SelectItem value={EScrapType.PRICE}>
+                      <span className="font-bold">Precio</span>{" "}
+                      <span className="text-xs">- solo se actualizan los precios</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
+          )}
 
+          {/* Filtering + match mode — only when matching */}
+          {runMatching && (
+            <>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="filtering-type" className="text-right">
+                  Tipo de Filtrado
+                </Label>
+                <div className="col-span-3">
+                  <Select
+                    value={filteringType}
+                    onValueChange={(value) => setFilteringType(value as EFilteringType)}
+                  >
+                    <SelectTrigger id="filtering-type">
+                      <SelectValue placeholder="Selecciona un tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={EFilteringType.SIMILARITY}>
+                        <span className="font-bold">Similitud</span>{" "}
+                        <span className="text-xs">- se filtra usando similitud (nombre, sku, imagen)</span>
+                      </SelectItem>
+                      <SelectItem value={EFilteringType.SKU}>
+                        <span className="font-bold">SKU</span>{" "}
+                        <span className="text-xs">- se filtra por coincidencia exacta de código SKU</span>
+                      </SelectItem>
+                      <SelectItem value={EFilteringType.PIPELINE}>
+                        <span className="font-bold">Pipeline</span>{" "}
+                        <span className="text-xs">- pipeline multi-etapa: SKU + embeddings + LLM local</span>
+                      </SelectItem>
+                      <SelectItem value={EFilteringType.PIPELINE_LITE}>
+                        <span className="font-bold">Pipeline Lite</span>{" "}
+                        <span className="text-xs">- pipeline sin LLM: solo SKU + embeddings</span>
+                      </SelectItem>
+                      <SelectItem value={EFilteringType.OPENAI}>
+                        <span className="font-bold">OPENAI</span> (De Pago){" "}
+                        <span className="text-xs">- se filtra usando IA</span>
+                      </SelectItem>
+                      <SelectItem value={EFilteringType.NONE}>
+                        <span className="font-bold">Sin Filtrado</span>{" "}
+                        <span className="text-xs">- no se obtienen productos nuevos</span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="match-mode" className="text-right">
+                  Modo de Matching
+                </Label>
+                <div className="col-span-3">
+                  <Select
+                    value={matchMode}
+                    onValueChange={(value) => setMatchMode(value as EMatchMode)}
+                  >
+                    <SelectTrigger id="match-mode">
+                      <SelectValue placeholder="Selecciona un modo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={EMatchMode.NEW}>
+                        <span className="font-bold">Solo nuevos</span>{" "}
+                        <span className="text-xs">- correlacionar solo productos sin asignación</span>
+                      </SelectItem>
+                      <SelectItem value={EMatchMode.FULL}>
+                        <span className="font-bold">Desde cero</span>{" "}
+                        <span className="text-xs">- borrar correlaciones existentes y recalcular</span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Webpages selection */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Páginas Web</Label>
@@ -275,10 +336,7 @@ export function NewScrapingDialog({
                 ) : (
                   <div className="space-y-2">
                     {webpages.map((webpage) => (
-                      <div
-                        key={webpage.id}
-                        className="flex items-center space-x-2"
-                      >
+                      <div key={webpage.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={`webpage-${webpage.id}`}
                           checked={selectedWebpages.includes(webpage.id)}
@@ -309,7 +367,7 @@ export function NewScrapingDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={loading || webpages.length === 0}
+            disabled={loading || webpages.length === 0 || (!runScraping && !runMatching)}
           >
             {loading ? "Iniciando..." : "Aceptar"}
           </Button>
