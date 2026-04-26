@@ -62,6 +62,12 @@ export function NewScrapingDialog({
 
   useEffect(() => {
     if (open) {
+      setRunScraping(true);
+      setRunMatching(true);
+      setMatchMode(EMatchMode.NEW);
+      setScrapType(EScrapType.FULL);
+      setFilteringType(EFilteringType.SIMILARITY);
+      setSelectedWebpages([]);
       fetch("/api/webpages")
         .then((res) => res.json())
         .then((data) => {
@@ -87,6 +93,7 @@ export function NewScrapingDialog({
       });
       return;
     }
+    // Belt-and-suspenders: button is also disabled when both are unchecked.
     if (!runScraping && !runMatching) {
       toast({
         title: "Error",
@@ -154,7 +161,7 @@ export function NewScrapingDialog({
   };
 
   const selectAllWebpages = () => {
-    if (selectedWebpages.length === webpages.length) {
+    if (webpages.length > 0 && selectedWebpages.length === webpages.length) {
       setSelectedWebpages([]);
     } else {
       setSelectedWebpages(webpages.map((w) => w.id));
