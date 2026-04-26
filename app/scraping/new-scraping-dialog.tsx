@@ -88,6 +88,7 @@ export function NewScrapingDialog({
       const result = await startScraping(
         selectedWebpages,
         scrapType,
+        undefined,
         filteringType
       );
 
@@ -212,6 +213,27 @@ export function NewScrapingDialog({
                     <span className="text-xs">
                       {" "}
                       - se filtra usando similitud (nombre, sku, imagen)
+                    </span>
+                  </SelectItem>
+                  <SelectItem value={EFilteringType.SKU}>
+                    <span className="font-bold">SKU</span>{" "}
+                    <span className="text-xs">
+                      {" "}
+                      - se filtra por coincidencia exacta de código SKU
+                    </span>
+                  </SelectItem>
+                  <SelectItem value={EFilteringType.PIPELINE}>
+                    <span className="font-bold">Pipeline</span>{" "}
+                    <span className="text-xs">
+                      {" "}
+                      - pipeline multi-etapa: SKU + embeddings + LLM local
+                    </span>
+                  </SelectItem>
+                  <SelectItem value={EFilteringType.PIPELINE_LITE}>
+                    <span className="font-bold">Pipeline Lite</span>{" "}
+                    <span className="text-xs">
+                      {" "}
+                      - pipeline sin LLM: solo SKU + embeddings
                     </span>
                   </SelectItem>
                   <SelectItem value={EFilteringType.OPENAI}>
