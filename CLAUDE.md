@@ -50,11 +50,9 @@ npx prisma generate     # Regenerar cliente tras cambios de schema
 ```bash
 DATABASE_URL="postgresql://user:password@host:5432/database"
 NEXTAUTH_SECRET="string-aleatoria-32-chars"
-NEXT_PUBLIC_SCRAPER_URL="https://picscrap-service.com"
-NEXT_PUBLIC_SCRAPER_API_KEY="api-key-del-scraper"
+SCRAPER_URL="https://picscrap-service.com"
+SCRAPER_API_KEY="api-key-del-scraper"
 ```
-
-**Advertencia:** `NEXT_PUBLIC_*` se expone al cliente (browser). La API key del scraper es visible en el bundle. Pendiente mover el trigger de scraping a un endpoint server-side.
 
 ## Rutas principales
 
