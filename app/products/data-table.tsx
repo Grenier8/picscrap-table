@@ -37,11 +37,13 @@ import * as React from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  webpageNames: string[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  webpageNames,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -93,9 +95,14 @@ export function DataTable<TData, TValue>({
   );
 
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      outOfStock: false,
-      link: false,
+    React.useState<VisibilityState>(() => {
+      const pageParam = searchParams.get("page");
+      const base: VisibilityState = { outOfStock: false, link: false };
+      if (!pageParam || !webpageNames.includes(pageParam)) return base;
+      const webpageVisibility = Object.fromEntries(
+        webpageNames.map((name) => [name, name === pageParam])
+      );
+      return { ...base, ...webpageVisibility };
     });
 
   // Sync filter, sorting, and pagination state to URL
