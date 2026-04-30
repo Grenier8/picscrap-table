@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic"; // This disables SSG and ISR
 
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -87,9 +88,10 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {priceSummary.map((page) => (
-              <div
+              <Link
                 key={page.pageId}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                href={`/products?page=${encodeURIComponent(page.pageName)}`}
+                className="block bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:ring-2 hover:ring-blue-500 transition-all duration-300 cursor-pointer"
               >
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -124,7 +126,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
