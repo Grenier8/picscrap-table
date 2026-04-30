@@ -178,6 +178,15 @@ export function DataTable<TData, TValue>({
       }
     });
     // Pagination state is now derived from URL only, so no need to update local state.
+    // Column visibility
+    const pageParam = searchParams.get("page");
+    if (pageParam && webpageNames.includes(pageParam)) {
+      setColumnVisibility({
+        outOfStock: false,
+        link: false,
+        ...Object.fromEntries(webpageNames.map((name) => [name, name === pageParam])),
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()]);
 
