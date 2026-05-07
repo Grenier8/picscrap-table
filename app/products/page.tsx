@@ -13,6 +13,7 @@ export default function ProductList() {
   const router = useRouter();
   const [baseProducts, setBaseProducts] = useState<BaseProduct[]>([]);
   const [columns, setColumns] = useState<ColumnDef<BaseProduct>[]>([]);
+  const [webpageNames, setWebpageNames] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -33,6 +34,11 @@ export default function ProductList() {
       .then((res) => res.json())
       .then((data) => {
         setColumns(getColumns(data.webpages));
+        setWebpageNames(
+          data.webpages
+            .filter((w: { isBasePage: boolean }) => !w.isBasePage)
+            .map((w: { name: string }) => w.name)
+        );
       })
       .catch((error) => {
         console.error("Error fetching webpages:", error);
@@ -48,7 +54,7 @@ export default function ProductList() {
           Tabla de Productos
         </h1>
       </div>
-      <DataTable columns={columns} data={baseProducts} />
+      <DataTable columns={columns} data={baseProducts} webpageNames={webpageNames} />
     </div>
   );
 }

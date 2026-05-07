@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const response = await fetch(`${scraperUrl}/api/scrape`, {
+    const response = await fetch(`${scraperUrl}/api/match`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         {
           result: "busy",
           status: 204,
-          message: "El scraping se encuentra actualmente en ejecución",
+          message: "El matching se encuentra actualmente en ejecución",
         },
         { status: 204 }
       );

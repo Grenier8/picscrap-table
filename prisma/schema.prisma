@@ -48,14 +48,14 @@ model Product {
   link          String?
   image         String?
   webpageId     Int
-  baseProductId Int
+  baseProductId Int?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   brand         Brand       @relation("ProductBrand", fields: [brandId], references: [id])
   webpage       Webpage     @relation("ProductWebpage", fields: [webpageId], references: [id])
-  baseProduct   BaseProduct @relation("BaseProduct", fields: [baseProductId], references: [id])
+  baseProduct   BaseProduct? @relation("BaseProduct", fields: [baseProductId], references: [id])
 
-  @@unique([sku, webpageId, baseProductId])
+  @@unique([sku, webpageId])
 }
 
 model BaseProduct {

@@ -37,11 +37,13 @@ import * as React from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  webpageNames: string[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  webpageNames,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,7 +60,7 @@ export function DataTable<TData, TValue>({
 
   const getPaginationParams = () => {
     const pageIndex = parseInt(searchParams.get("pageIndex") || "0");
-    const pageSize = parseInt(searchParams.get("pageSize") || "7");
+    const pageSize = parseInt(searchParams.get("pageSize") || "8");
     return { pageIndex, pageSize };
   };
 
@@ -93,9 +95,14 @@ export function DataTable<TData, TValue>({
   );
 
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      outOfStock: false,
-      link: false,
+    React.useState<VisibilityState>(() => {
+      const pageParam = searchParams.get("page");
+      const base: VisibilityState = { outOfStock: false, link: false };
+      if (!pageParam || !webpageNames.includes(pageParam)) return base;
+      const webpageVisibility = Object.fromEntries(
+        webpageNames.map((name) => [name, name === pageParam])
+      );
+      return { ...base, ...webpageVisibility };
     });
 
   // Sync filter, sorting, and pagination state to URL
@@ -171,6 +178,15 @@ export function DataTable<TData, TValue>({
       }
     });
     // Pagination state is now derived from URL only, so no need to update local state.
+    // Column visibility
+    const pageParam = searchParams.get("page");
+    if (pageParam && webpageNames.includes(pageParam)) {
+      setColumnVisibility({
+        outOfStock: false,
+        link: false,
+        ...Object.fromEntries(webpageNames.map((name) => [name, name === pageParam])),
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()]);
 
