@@ -42,7 +42,7 @@ export const getColumns = (webpages: Webpage[]): ColumnDef<BaseProduct>[] => [
     header: "Link",
     cell: ({ row }) => {
       const link = row.getValue("link");
-      return <a href={link as string}>Link</a>;
+      return <a href={link as string} target="_blank" rel="noreferrer">Link</a>;
     },
   },
   {
@@ -200,7 +200,7 @@ function getPagesColumns(webpages: Webpage[]): ColumnDef<BaseProduct>[] {
 
           return (
             <div className={`text-right font-medium ${colorClass}`}>
-              <a href={product?.link}>
+              <a href={product?.link} target="_blank" rel="noreferrer">
                 {formatted}
                 {diffIndicator}
               </a>
