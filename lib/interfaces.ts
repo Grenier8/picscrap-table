@@ -1,4 +1,5 @@
 export interface Product {
+  id: number;
   name: string;
   sku: string;
   link: string;
@@ -7,6 +8,9 @@ export interface Product {
   outOfStock: boolean | null;
   image: string;
   brand: Brand;
+  baseProductId: number | null;
+  correlationVerified: boolean;
+  updatedAt: string;
 }
 
 export interface Brand {
@@ -21,6 +25,7 @@ export interface Webpage {
 }
 
 export interface BaseProduct {
+  id: number;
   name: string;
   link: string;
   price: number;

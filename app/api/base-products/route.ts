@@ -6,7 +6,9 @@ export async function GET() {
     const baseProducts = await prisma.baseProduct.findMany({
       include: {
         brand: true,
-        products: true,
+        products: {
+          include: { brand: true },
+        },
       },
     });
 
