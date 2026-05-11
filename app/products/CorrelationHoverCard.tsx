@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/lib/interfaces";
@@ -37,12 +36,13 @@ export function CorrelationHoverCard({ product, webpageName, onEdit }: Props) {
   return (
     <div className="w-80 space-y-3">
       <div className="flex gap-3">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={product.image || "/logo-square.png"}
           alt=""
           width={64}
           height={64}
-          className="rounded"
+          className="rounded object-cover"
         />
         <div className="min-w-0 flex-1">
           <div className="font-medium truncate">{product.name}</div>

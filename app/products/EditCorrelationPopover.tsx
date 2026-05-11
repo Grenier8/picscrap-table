@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -155,12 +154,13 @@ export function EditCorrelationPopover({
         <div className="rounded border p-2">
           <div className="text-xs text-muted-foreground mb-1">Currently correlated:</div>
           <div className="flex items-center gap-2">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={currentProduct.image || "/logo-square.png"}
               alt=""
               width={32}
               height={32}
-              className="rounded"
+              className="rounded object-cover"
             />
             <div className="text-sm min-w-0 flex-1 truncate">
               {currentProduct.name} · {currentProduct.sku}
@@ -213,12 +213,13 @@ export function EditCorrelationPopover({
                   isPending ? "ring-1 ring-primary" : "",
                 ].join(" ")}
               >
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={r.image || "/logo-square.png"}
                   alt=""
                   width={32}
                   height={32}
-                  className="rounded"
+                  className="rounded object-cover"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="truncate">{r.name}</div>
