@@ -4,7 +4,7 @@ import { BaseProduct } from "@/lib/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
 
@@ -15,6 +15,12 @@ export default function ProductList() {
   const [columns, setColumns] = useState<ColumnDef<BaseProduct>[]>([]);
   const [webpageNames, setWebpageNames] = useState<string[]>([]);
 
+  const fetchBaseProducts = useCallback(() => {
+    fetch("/api/base-products")
+      .then((res) => res.json())
+      .then((data) => setBaseProducts(data.baseProducts));
+  }, []);
+
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
@@ -22,18 +28,12 @@ export default function ProductList() {
       router.replace("/");
       return;
     }
-    const fetchBaseProducts = () => {
-      fetch("/api/base-products")
-        .then((res) => res.json())
-        .then((data) => setBaseProducts(data.baseProducts));
-    };
     fetchBaseProducts();
 
-    // Fetch webpages
     fetch("/api/webpages")
       .then((res) => res.json())
       .then((data) => {
-        setColumns(getColumns(data.webpages));
+        setColumns(getColumns(data.webpages, fetchBaseProducts));
         setWebpageNames(
           data.webpages
             .filter((w: { isBasePage: boolean }) => !w.isBasePage)
@@ -43,7 +43,7 @@ export default function ProductList() {
       .catch((error) => {
         console.error("Error fetching webpages:", error);
       });
-  }, [session, status, router]);
+  }, [session, status, router, fetchBaseProducts]);
 
   if (status === "loading" || !session || columns.length === 0) return null;
 
