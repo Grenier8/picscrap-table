@@ -45,6 +45,7 @@ model Product {
   stockAmount         Int?
   correlationScore    Float?
   correlationMethod   String?
+  correlationVerified Boolean @default(false)
   link          String?
   image         String?
   webpageId     Int
