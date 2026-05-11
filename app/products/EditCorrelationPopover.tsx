@@ -160,6 +160,7 @@ export function EditCorrelationPopover({
               alt=""
               width={32}
               height={32}
+              referrerPolicy="no-referrer"
               className="rounded object-cover"
             />
             <div className="text-sm min-w-0 flex-1 truncate">
@@ -219,6 +220,7 @@ export function EditCorrelationPopover({
                   alt=""
                   width={32}
                   height={32}
+                  referrerPolicy="no-referrer"
                   className="rounded object-cover"
                 />
                 <div className="min-w-0 flex-1">

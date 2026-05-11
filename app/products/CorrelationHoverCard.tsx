@@ -42,6 +42,7 @@ export function CorrelationHoverCard({ product, webpageName, onEdit }: Props) {
           alt=""
           width={64}
           height={64}
+          referrerPolicy="no-referrer"
           className="rounded object-cover"
         />
         <div className="min-w-0 flex-1">
