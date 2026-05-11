@@ -39,7 +39,7 @@ export function EditCorrelationPopover({
   onClose,
   onSaved,
 }: Props) {
-  const [verified, setVerified] = useState<boolean>(currentProduct?.correlationVerified ?? true);
+  const [verified, setVerified] = useState<boolean>(currentProduct?.correlationVerified ?? false);
   const [userTouchedVerified, setUserTouchedVerified] = useState(false);
 
   const [query, setQuery] = useState("");
@@ -49,6 +49,7 @@ export function EditCorrelationPopover({
   const [pending, setPending] = useState<SearchResult | null>(null);
   const [unlinkConfirm, setUnlinkConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -87,19 +88,26 @@ export function EditCorrelationPopover({
 
   async function save() {
     setBusy(true);
+    setErrorMsg(null);
     try {
       const targetId = pending?.id ?? currentProduct?.id;
       if (!targetId) {
         onClose();
         return;
       }
-      await fetch(`/api/products/${targetId}/correlation`, {
+      const res = await fetch(`/api/products/${targetId}/correlation`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ baseProductId, correlationVerified: verified }),
       });
+      if (!res.ok) {
+        setErrorMsg(`Save failed (${res.status}). Please try again.`);
+        return;
+      }
       onSaved();
       onClose();
+    } catch {
+      setErrorMsg("Network error while saving. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -108,14 +116,21 @@ export function EditCorrelationPopover({
   async function unlink() {
     if (!currentProduct) return;
     setBusy(true);
+    setErrorMsg(null);
     try {
-      await fetch(`/api/products/${currentProduct.id}/correlation`, {
+      const res = await fetch(`/api/products/${currentProduct.id}/correlation`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ baseProductId: null, correlationVerified: false }),
       });
+      if (!res.ok) {
+        setErrorMsg(`Unlink failed (${res.status}). Please try again.`);
+        return;
+      }
       onSaved();
       onClose();
+    } catch {
+      setErrorMsg("Network error while unlinking. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -228,6 +243,12 @@ export function EditCorrelationPopover({
       {warning && (
         <div className="rounded border border-amber-400 bg-amber-50 p-2 text-xs text-amber-900">
           {warning}
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="rounded border border-red-400 bg-red-50 p-2 text-xs text-red-900">
+          {errorMsg}
         </div>
       )}
 
