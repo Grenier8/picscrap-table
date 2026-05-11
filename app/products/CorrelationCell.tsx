@@ -47,8 +47,8 @@ export function CorrelationCell({
       )}
       {product && (
         <span
-          aria-label={product.correlationVerified ? "Verified" : "Not verified"}
-          title={product.correlationVerified ? "Verified by user" : "Not verified"}
+          aria-label={product.correlationVerified ? "Verificado" : "No verificado"}
+          title={product.correlationVerified ? "Verificado por usuario" : "No verificado"}
           className={[
             "inline-block h-2 w-2 rounded-full",
             product.correlationVerified ? "bg-green-500" : "bg-gray-400",

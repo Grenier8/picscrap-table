@@ -24,11 +24,11 @@ export function CorrelationHoverCard({ product, webpageName, onEdit }: Props) {
   if (!product) {
     return (
       <div className="w-72 space-y-3">
-        <div className="font-medium">No correlation yet</div>
+        <div className="font-medium">Sin correlación aún</div>
         <p className="text-sm text-muted-foreground">
-          This base product has no match in <span className="font-medium">{webpageName}</span>.
+          Este producto base no tiene coincidencia en <span className="font-medium">{webpageName}</span>.
         </p>
-        <Button size="sm" onClick={onEdit}>Edit</Button>
+        <Button size="sm" onClick={onEdit}>Editar</Button>
       </div>
     );
   }
@@ -52,26 +52,26 @@ export function CorrelationHoverCard({ product, webpageName, onEdit }: Props) {
             {product.brand?.name ?? "-"} · {formatPrice(product.price)}
           </div>
           <div className="text-xs text-muted-foreground">
-            Updated {formatDate(product.updatedAt)}
+            Actualizado {formatDate(product.updatedAt)}
           </div>
         </div>
       </div>
 
       <div>
         {product.correlationVerified ? (
-          <Badge className="bg-green-600 hover:bg-green-600">Verified by user</Badge>
+          <Badge className="bg-green-600 hover:bg-green-600">Verificado por usuario</Badge>
         ) : (
-          <Badge variant="secondary">Not verified</Badge>
+          <Badge variant="secondary">No verificado</Badge>
         )}
       </div>
 
       <div className="flex gap-2">
         {product.link && (
           <a href={product.link} target="_blank" rel="noreferrer">
-            <Button size="sm" variant="outline">Open product page ↗</Button>
+            <Button size="sm" variant="outline">Abrir página del producto ↗</Button>
           </a>
         )}
-        <Button size="sm" onClick={onEdit}>Edit</Button>
+        <Button size="sm" onClick={onEdit}>Editar</Button>
       </div>
     </div>
   );

@@ -82,7 +82,7 @@ export function EditCorrelationPopover({
   const warning = useMemo(() => {
     if (!pending?.currentBaseProduct) return null;
     if (pending.currentBaseProduct.id === baseProductId) return null;
-    return `This product is currently linked to "${pending.currentBaseProduct.name}". Saving will move it here.`;
+    return `Este producto está actualmente vinculado a "${pending.currentBaseProduct.name}". Guardar lo moverá aquí.`;
   }, [pending, baseProductId]);
 
   async function save() {
@@ -100,13 +100,13 @@ export function EditCorrelationPopover({
         body: JSON.stringify({ baseProductId, correlationVerified: verified }),
       });
       if (!res.ok) {
-        setErrorMsg(`Save failed (${res.status}). Please try again.`);
+        setErrorMsg(`Error al guardar (${res.status}). Intenta de nuevo.`);
         return;
       }
       onSaved();
       onClose();
     } catch {
-      setErrorMsg("Network error while saving. Please try again.");
+      setErrorMsg("Error de red al guardar. Intenta de nuevo.");
     } finally {
       setBusy(false);
     }
@@ -123,13 +123,13 @@ export function EditCorrelationPopover({
         body: JSON.stringify({ baseProductId: null, correlationVerified: false }),
       });
       if (!res.ok) {
-        setErrorMsg(`Unlink failed (${res.status}). Please try again.`);
+        setErrorMsg(`Error al desvincular (${res.status}). Intenta de nuevo.`);
         return;
       }
       onSaved();
       onClose();
     } catch {
-      setErrorMsg("Network error while unlinking. Please try again.");
+      setErrorMsg("Error de red al desvincular. Intenta de nuevo.");
     } finally {
       setBusy(false);
     }
@@ -137,7 +137,7 @@ export function EditCorrelationPopover({
 
   return (
     <div className="w-96 space-y-3 p-1">
-      <div className="font-medium">Edit correlation · {webpageName}</div>
+      <div className="font-medium">Editar correlación · {webpageName}</div>
 
       <label className="flex items-center gap-2 text-sm">
         <Checkbox
@@ -147,12 +147,12 @@ export function EditCorrelationPopover({
             setVerified(Boolean(v));
           }}
         />
-        Mark correlation as verified
+        Marcar correlación como verificada
       </label>
 
       {currentProduct && (
         <div className="rounded border p-2">
-          <div className="text-xs text-muted-foreground mb-1">Currently correlated:</div>
+          <div className="text-xs text-muted-foreground mb-1">Actualmente correlacionado:</div>
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -168,12 +168,12 @@ export function EditCorrelationPopover({
             </div>
             {!unlinkConfirm ? (
               <Button size="sm" variant="outline" onClick={() => setUnlinkConfirm(true)}>
-                Unlink
+                Desvincular
               </Button>
             ) : (
               <div className="flex gap-1">
                 <Button size="sm" variant="destructive" disabled={busy} onClick={unlink}>
-                  Yes
+                  Sí
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setUnlinkConfirm(false)}>
                   No
@@ -186,16 +186,16 @@ export function EditCorrelationPopover({
 
       <div className="space-y-2">
         <Input
-          placeholder={`Search products in ${webpageName}…`}
+          placeholder={`Buscar productos en ${webpageName}…`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <div className="max-h-64 overflow-y-auto rounded border">
           {isSearching && (
-            <div className="p-2 text-xs text-muted-foreground">Searching…</div>
+            <div className="p-2 text-xs text-muted-foreground">Buscando…</div>
           )}
           {!isSearching && results.length === 0 && query.length > 0 && (
-            <div className="p-2 text-xs text-muted-foreground">No results.</div>
+            <div className="p-2 text-xs text-muted-foreground">Sin resultados.</div>
           )}
           {results.map((r) => {
             const isCurrent = currentProduct?.id === r.id;
@@ -229,11 +229,11 @@ export function EditCorrelationPopover({
                     {r.sku} · {formatPrice(r.price)}
                   </div>
                   {isCurrent && (
-                    <div className="text-xs text-blue-600">← currently linked</div>
+                    <div className="text-xs text-blue-600">← actualmente vinculado</div>
                   )}
                   {linkedElsewhere && r.currentBaseProduct && (
                     <div className="text-xs text-amber-600">
-                      ⚠ Linked to "{r.currentBaseProduct.name}"
+                      ⚠ Vinculado a &quot;{r.currentBaseProduct.name}&quot;
                     </div>
                   )}
                 </div>
@@ -256,8 +256,8 @@ export function EditCorrelationPopover({
       )}
 
       <div className="flex justify-end gap-2">
-        <Button size="sm" variant="ghost" onClick={onClose}>Cancel</Button>
-        <Button size="sm" disabled={busy} onClick={save}>Save</Button>
+        <Button size="sm" variant="ghost" onClick={onClose}>Cancelar</Button>
+        <Button size="sm" disabled={busy} onClick={save}>Guardar</Button>
       </div>
     </div>
   );
