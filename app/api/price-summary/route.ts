@@ -44,6 +44,7 @@ export async function GET() {
       const basePrice = baseProduct.price;
 
       baseProduct.products.forEach((product) => {
+        if (!pageStats[product.webpageId]) return;
         if (product.price > basePrice) {
           pageStats[product.webpageId].higher++;
         } else if (product.price < basePrice) {
