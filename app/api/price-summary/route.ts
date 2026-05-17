@@ -18,7 +18,15 @@ export async function GET() {
 
     const pageStats: Record<
       string,
-      { higher: number; lower: number; equal: number; pageName: string }
+      {
+        higher: number;
+        lower: number;
+        equal: number;
+        pageName: string;
+        higherStock: number;
+        lowerStock: number;
+        equalStock: number;
+      }
     > = {};
     webpages.forEach((webpage) => {
       pageStats[webpage.id] = {
@@ -26,6 +34,9 @@ export async function GET() {
         lower: 0,
         equal: 0,
         pageName: webpage.name,
+        higherStock: 0,
+        lowerStock: 0,
+        equalStock: 0,
       };
     });
 
@@ -33,12 +44,26 @@ export async function GET() {
       const basePrice = baseProduct.price;
 
       baseProduct.products.forEach((product) => {
+        if (!pageStats[product.webpageId]) return;
         if (product.price > basePrice) {
           pageStats[product.webpageId].higher++;
         } else if (product.price < basePrice) {
           pageStats[product.webpageId].lower++;
         } else {
           pageStats[product.webpageId].equal++;
+        }
+
+        const baseStock = baseProduct.stockAmount;
+        const productStock = product.stockAmount;
+
+        if (baseStock !== null && productStock !== null) {
+          if (productStock > baseStock) {
+            pageStats[product.webpageId].higherStock++;
+          } else if (productStock < baseStock) {
+            pageStats[product.webpageId].lowerStock++;
+          } else {
+            pageStats[product.webpageId].equalStock++;
+          }
         }
       });
     });
@@ -50,6 +75,9 @@ export async function GET() {
       lowerPriceCount: stats.lower,
       equalPriceCount: stats.equal,
       totalProducts: stats.higher + stats.lower + stats.equal,
+      higherStockCount: stats.higherStock,
+      lowerStockCount: stats.lowerStock,
+      equalStockCount: stats.equalStock,
     }));
 
     return NextResponse.json({ summary: result });
