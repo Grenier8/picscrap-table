@@ -13,6 +13,9 @@ interface PriceSummary {
   lowerPriceCount: number;
   equalPriceCount: number;
   totalProducts: number;
+  higherStockCount: number;
+  lowerStockCount: number;
+  equalStockCount: number;
 }
 
 export default function Home() {
@@ -94,35 +97,46 @@ export default function Home() {
                 className="block bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:ring-2 hover:ring-blue-500 transition-all duration-300 cursor-pointer"
               >
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
                     {page.pageName}
                   </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 dark:text-gray-300">
-                        Total de productos:
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {page.totalProducts}
-                      </span>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Total: {page.totalProducts} productos
+                  </p>
+                  <div className="flex divide-x divide-gray-200 dark:divide-gray-700">
+                    <div className="flex-1 pr-4 space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                        Precios
+                      </p>
+                      <div className="flex justify-between items-center text-green-600 dark:text-green-400 text-sm">
+                        <span>Más bajo</span>
+                        <span className="font-medium">{page.lowerPriceCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-400 text-sm">
+                        <span>Igual</span>
+                        <span className="font-medium">{page.equalPriceCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-red-600 dark:text-red-400 text-sm">
+                        <span>Más alto</span>
+                        <span className="font-medium">{page.higherPriceCount}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center text-green-600 dark:text-green-400">
-                      <span>Precio más bajo:</span>
-                      <span className="font-medium">
-                        {page.lowerPriceCount}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">
-                      <span>Precio igual:</span>
-                      <span className="font-medium">
-                        {page.equalPriceCount}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-red-600 dark:text-red-400">
-                      <span>Precio más alto:</span>
-                      <span className="font-medium">
-                        {page.higherPriceCount}
-                      </span>
+                    <div className="flex-1 pl-4 space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                        Stock
+                      </p>
+                      <div className="flex justify-between items-center text-green-600 dark:text-green-400 text-sm">
+                        <span>Más stock</span>
+                        <span className="font-medium">{page.higherStockCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-400 text-sm">
+                        <span>Igual</span>
+                        <span className="font-medium">{page.equalStockCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-red-600 dark:text-red-400 text-sm">
+                        <span>Menos stock</span>
+                        <span className="font-medium">{page.lowerStockCount}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
